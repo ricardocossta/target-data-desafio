@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de estabelecimentos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('home') }}">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{{ url_for('todo_list.index') }}">Todo-List</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{{ url_for('crud_pymongo.index') }}">Crud PyMongo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{{ url_for('crud_elasticsearch.index') }}">Crud ElasticSearch</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container mt-5">
+    <h2 class="mb-4">Lista de estabelecimentos usando Elastic Search</h2>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">CNPJ</th>
+                <th scope="col">Nome Fantasia</th>
+                <th scope="col">CEP</th>
+                <th scope="col">Telefone</th>
+                <th scope="col">E-mail</th>
+                <th scope="col">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for estabelecimento in estabelecimentos %}
+            <tr>
+                <td>{{ estabelecimento._source.CNPJ }}</td>
+                <td>{{ estabelecimento._source.NomeFantasia }}</td>
+                <td>{{ estabelecimento._source.CEP }}</td>
+                <td>{{ estabelecimento._source.Telefone }}</td>
+                <td>{{ estabelecimento._source.Email }}</td>
+                <td class="text-center">
+                    <div class="btn-group">
+                        <a href="{{ url_for('crud_elasticsearch.edit', id=estabelecimento._id) }}" class="btn btn-primary">Editar</a>
+                        <a href="{{ url_for('crud_elasticsearch.delete', id=estabelecimento._id) }}" class="btn btn-danger">Excluir</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="{{ url_for('crud_elasticsearch.add') }}" class="btn btn-success">Adicionar</a>
+</div>
+</body>
+</html>
