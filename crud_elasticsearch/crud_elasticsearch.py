@@ -9,12 +9,26 @@ crud_elasticsearch_blueprint = Blueprint('crud_elasticsearch', __name__, templat
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
 
-es = Elasticsearch(['http://localhost:9200/'])
+es = Elasticsearch([{'host': 'elasticsearch', 'port': 9200, 'scheme': 'http'}],
+                   verify_certs=False)
 
 
 @crud_elasticsearch_blueprint.route('/')
 @login_required
 def index():
+    if not es.indices.exists(index='estabelecimentos'):
+        index_settings = {
+            "mappings": {
+                "properties": {
+                    "CNPJ": {"type": "text"},
+                    "NomeFantasia": {"type": "text"},
+                    "CEP": {"type": "long"},
+                    "Telefone": {"type": "text"},
+                    "Email": {"type": "text"}
+                }
+            }
+        }
+        es.indices.create(index='estabelecimentos', body=index_settings)
     res = es.search(index='estabelecimentos', body={'query': {'match_all': {}}, 'size': 100})
     estabelecimentos = list(res['hits']['hits'])
     return render_template('index_crud_elasticsearch.html', estabelecimentos=estabelecimentos)
@@ -31,17 +45,27 @@ def add():
             'Telefone': request.form['telefone'],
             'Email': request.form['email']
         }
+
+        res = es.search(index='estabelecimentos', body={'query': {'match': {"CNPJ": request.form['cnpj']}}})
+        if res['hits']['total']['value'] > 0:
+            flash('Já existe um estabelecimento cadastrado com esse CNPJ', 'warning')
+            return redirect(url_for('crud_elasticsearch.index'))
+
         if not request.form['telefone'].isnumeric():
             flash('Telefone não pode conter letras, inserção não concluida', 'warning')
             return redirect(url_for('crud_elasticsearch.index'))
+
         if len(request.form['nome']) < 3:
             flash('Nome Fantasia não pode ter menos que 3 caracteres, inserção não concluida', 'warning')
             return redirect(url_for('crud_elasticsearch.index'))
+
         res = es.search(index='estabelecimentos', body={'query': {'match_all': {}}, 'size': 100})
         estabelecimentos = res['hits']['hits']
-        ultimo_estabelecimento = estabelecimentos[-1]
-
-        es.index(index='estabelecimentos', document=data, id=int(ultimo_estabelecimento["_id"]) + 1)
+        if len(estabelecimentos) > 0:
+            ultimo_estabelecimento = estabelecimentos[-1]
+            es.index(index='estabelecimentos', document=data, id=int(ultimo_estabelecimento["_id"]) + 1)
+        else:
+            es.index(index='estabelecimentos', document=data, id='1')
         time.sleep(1)
 
         return redirect(url_for('crud_elasticsearch.index'))
@@ -61,12 +85,20 @@ def edit(id):
             'Telefone': request.form['telefone'],
             'Email': request.form['email']
         }
+
+        res = es.search(index='estabelecimentos', body={'query': {'match': {"CNPJ": request.form['cnpj']}}})
+        if res['hits']['total']['value'] > 0:
+            flash('Ja existe um estabelecimento cadastrado com esse CNPJ', 'warning')
+            return redirect(url_for('crud_elasticsearch.index'))
+
         if not request.form['telefone'].isnumeric():
             flash('Telefone não pode conter letras, atualização não concluida', 'warning')
             return redirect(url_for('crud_elasticsearch.index'))
+
         if len(request.form['nome']) < 3:
             flash('Nome Fantasia não pode ter menos que 3 caracteres, atualização não concluida', 'warning')
             return redirect(url_for('crud_elasticsearch.index'))
+
         es.index(index='estabelecimentos', document=data, id=estabelecimento["_id"])
         time.sleep(1)
         return redirect(url_for('crud_elasticsearch.index'))
@@ -86,4 +118,4 @@ def delete(id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int("5000"), debug=True)

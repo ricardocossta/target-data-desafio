@@ -26,16 +26,15 @@ df = df.loc[:, ['CNPJ COMPLETO', 'Nome Fantasia', 'CEP', 'Telefone', 'Email']]
 print("Data Frame:")
 print(df)
 
-# for index, row in df.iterrows():
-#     data = {
-#         'CNPJ': row["CNPJ COMPLETO"],
-#         'NomeFantasia': row["Nome Fantasia"],
-#         'CEP': row["CEP"],
-#         'Telefone': row["Telefone"],
-#         'Email': row["Email"]
-#     }
-#     es.index(index='estabelecimentos', document=data, id=index + 1)
-#     collection.insert_one(data)
+for index, row in df.iterrows():
+    data = {
+        'CNPJ': row["CNPJ COMPLETO"],
+        'NomeFantasia': row["Nome Fantasia"],
+        'CEP': row["CEP"],
+        'Telefone': row["Telefone"],
+        'Email': row["Email"]
+    }
+    es.index(index='estabelecimentos', document=data, id=index + 1)
+    collection.insert_one(data)
 
 print("Dados inseridos no Mongodb e Elasticsearch com sucesso!")
-

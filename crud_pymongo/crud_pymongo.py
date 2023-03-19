@@ -1,14 +1,13 @@
 from bson.objectid import ObjectId
 from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
-import pymongo
+from pymongo import MongoClient
 from flask_login import login_required
 
 crud_pymongo_blueprint = Blueprint('crud_pymongo', __name__, template_folder='templates', url_prefix='/crud_pymongo')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
-client = pymongo.MongoClient("mongodb://localhost:27017", username='root',
-                             password='root')
+client = MongoClient(host='test_mongodb', port=27017, username='root', password='root')
 db = client["estabelecimentosdb"]
 collection = db["estabelecimentos"]
 
@@ -30,9 +29,15 @@ def add():
         telefone = request.form['telefone']
         email = request.form['email']
 
+        res = collection.find_one({'CNPJ': request.form['cnpj']})
+        if res is not None:
+            flash('Já existe um estabelecimento cadastrado com esse CNPJ', 'warning')
+            return redirect(url_for('crud_pymongo.index'))
+
         if not request.form['telefone'].isnumeric():
             flash('Telefone não pode conter letras, inserção não concluida', 'warning')
             return redirect(url_for('crud_pymongo.index'))
+
         if len(request.form['nome']) < 3:
             flash('Nome Fantasia não pode ter menos que 3 caracteres, inserção não concluida', 'warning')
             return redirect(url_for('crud_pymongo.index'))
@@ -59,12 +64,20 @@ def edit(id):
         cep = request.form['cep']
         telefone = request.form['telefone']
         email = request.form['email']
+
+        res = collection.find_one({'CNPJ': request.form['cnpj']})
+        if res is not None:
+            flash('Já existe um estabelecimento cadastrado com esse CNPJ', 'warning')
+            return redirect(url_for('crud_pymongo.index'))
+
         if not request.form['telefone'].isnumeric():
             flash('Telefone não pode conter letras, atualização não concluida', 'warning')
             return redirect(url_for('crud_pymongo.index'))
+
         if len(request.form['nome']) < 3:
             flash('Nome Fantasia não pode ter menos que 3 caracteres, atualização não concluida', 'warning')
             return redirect(url_for('crud_pymongo.index'))
+
         collection.update_one({'_id': ObjectId(id)}, {'$set': {
             'CNPJ': cnpj,
             'NomeFantasia': nome,
@@ -88,4 +101,4 @@ def delete(id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int("5000"), debug=True)

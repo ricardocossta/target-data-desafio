@@ -21,7 +21,7 @@ app.register_blueprint(crud_elasticsearch_blueprint)
 # DB Config
 app.config['MONGODB_SETTINGS'] = {
     'db': 'estabelecimentosdb',
-    'host': 'localhost',
+    'host': 'test_mongodb',
     'port': 27017,
     'username': 'root',
     'password': 'root'
@@ -107,4 +107,4 @@ def home():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int("5000"), debug=True)
