@@ -1,7 +1,7 @@
 from flask import Flask, render_template, Blueprint
 from flask_login import login_required
 
-todo_list_blueprint = Blueprint('todo_list', __name__, template_folder='templates', url_prefix='/todo_list',
+todo_list_blueprint = Blueprint('todo_list', __name__, template_folder='../templates/todo_list', url_prefix='/todo_list',
                                 static_folder='static')
 
 app = Flask(__name__)

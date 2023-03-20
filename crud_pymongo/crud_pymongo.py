@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Blu
 from pymongo import MongoClient
 from flask_login import login_required
 
-crud_pymongo_blueprint = Blueprint('crud_pymongo', __name__, template_folder='templates', url_prefix='/crud_pymongo')
+crud_pymongo_blueprint = Blueprint('crud_pymongo', __name__, template_folder='../templates/crud_pymongo', url_prefix='/crud_pymongo')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'

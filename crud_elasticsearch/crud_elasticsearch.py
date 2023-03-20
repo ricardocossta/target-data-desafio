@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Blu
 from flask_login import login_required
 from elasticsearch import Elasticsearch
 
-crud_elasticsearch_blueprint = Blueprint('crud_elasticsearch', __name__, template_folder='templates',
+crud_elasticsearch_blueprint = Blueprint('crud_elasticsearch', __name__, template_folder='../templates/crud_elasticsearch',
                                          url_prefix='/crud_elasticsearch')
 
 app = Flask(__name__)
