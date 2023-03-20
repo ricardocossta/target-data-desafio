@@ -12,19 +12,21 @@ csv_file_path = my_path + "\\dados.csv"
 
 es = Elasticsearch(['http://localhost:9200/'])
 
-df = pd.read_csv(csv_file_path, sep=';', encoding="utf-8", encoding_errors='replace',
-                 nrows=10, header=None, usecols=[0, 1, 2, 4, 18, 21, 22, 27])
-df = df.dropna()
+df = pd.read_csv(csv_file_path, sep=';', encoding="utf-8", encoding_errors='replace',header=None, usecols=[0, 1, 2, 4, 18, 21, 22, 27], nrows=20)
+df = df.dropna().reset_index(drop=True)
+
 df.rename(columns={0: 'CNPJ Basico', 1: 'CNPJ Ordem', 2: 'CNPJ DV', 4: 'Nome Fantasia', 18: 'CEP', 21: 'DDD 1',
                    22: 'TELEFONE 1', 27: 'Email'}, inplace=True)
 
+df = df.head(10)
 df['CNPJ COMPLETO'] = df['CNPJ Basico'].astype(str) + df['CNPJ Ordem'].astype(str) + df['CNPJ DV'].astype(str)
 df['Telefone'] = df['DDD 1'].astype(str) + df['TELEFONE 1'].astype(str)
 
 df = df.loc[:, ['CNPJ COMPLETO', 'Nome Fantasia', 'CEP', 'Telefone', 'Email']]
 
-print("Data Frame:")
+print("Data Frame Inserido:")
 print(df)
+
 
 for index, row in df.iterrows():
     data = {
