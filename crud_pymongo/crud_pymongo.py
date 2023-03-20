@@ -66,8 +66,8 @@ def edit(id):
         email = request.form['email']
 
         res = collection.find_one({'CNPJ': request.form['cnpj']})
-        if res is not None:
-            flash('Já existe um estabelecimento cadastrado com esse CNPJ', 'warning')
+        if res is not None and res['_id'] != ObjectId(id):
+            flash('Já existe um estabelecimento cadastrado com esse CNPJ, atualização não concluida', 'warning')
             return redirect(url_for('crud_pymongo.index'))
 
         if not request.form['telefone'].isnumeric():

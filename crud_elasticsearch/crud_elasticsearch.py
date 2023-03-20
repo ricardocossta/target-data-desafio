@@ -87,8 +87,8 @@ def edit(id):
         }
 
         res = es.search(index='estabelecimentos', body={'query': {'match': {"CNPJ": request.form['cnpj']}}})
-        if res['hits']['total']['value'] > 0:
-            flash('Ja existe um estabelecimento cadastrado com esse CNPJ', 'warning')
+        if res['hits']['total']['value'] > 0 and res['hits']['hits'][0]['_id'] != id:
+            flash('Ja existe um estabelecimento cadastrado com esse CNPJ, atualização não concluida', 'warning')
             return redirect(url_for('crud_elasticsearch.index'))
 
         if not request.form['telefone'].isnumeric():
